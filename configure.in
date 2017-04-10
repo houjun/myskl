@@ -1,0 +1,454 @@
+######################################################################
+#                                                                    #
+#                                               -*- Autoconf -*-     #
+# Process this file with autoconf to produce a configure script.     #
+#                                                                    #
+# Copyright 2008 by Andrea Ghersi                                    #
+# This file is part of the 'MySKL' package.                          #
+#                                                                    #
+# Permission to use, copy, modify, and distribute this software for  #
+# any purpose and without fee is hereby granted, provided that the   #
+# above copyright notice and this permission notice appear in all    #
+# copies, and that the name of Andrea Ghersi not be used in          #
+# advertising or publicity pertaining to distribution of the         #
+# document or software without specific, written prior permission.   #
+#                                                                    #
+# Andrea Ghersi makes no representations about the suitability of    #
+# the software described herein for any purpose.  It is provided     #
+# "as is" without express or implied warranty.                       #
+#                                                                    #
+######################################################################
+
+##
+## require autoconf 2.53
+##
+
+AC_PREREQ(2.53)
+
+
+########################################################
+########################################################
+
+## MODIFY HERE WHEN ANY CHANGE TO LIBRARY'S BEEN DONE!!
+
+m4_define([skl_major_version], [0])
+m4_define([skl_minor_version], [2])
+m4_define([skl_micro_version], [1])
+m4_define([skl_interface_age], [0])
+m4_define([skl_binary_age], [1])
+
+########################################################
+########################################################
+
+
+## =====================================================
+## Init autoconf and automake
+## =====================================================
+
+m4_define([skl_version],
+[skl_major_version.skl_minor_version.skl_micro_version])
+
+AC_INIT(myskl, 0.2.1, ghangenit@users.sourceforge.net)
+AM_INIT_AUTOMAKE([no-define])
+
+
+## =====================================================
+## Set up a few of default variables
+## =====================================================
+
+# Check if CFLAGS was given to 'configure'
+# Since AC_PROG_CC sets 'CFLAGS' variable
+# (besides CC) if it is empty, this check
+# needs to be done here
+
+if test "${CFLAGS+set}" = set; then cflagsset=yes
+else cflagsset=no; fi
+
+me=$( basename $0 )
+internaldebug=''
+extracflags=''        # not used at this moment
+debugcflags=''
+othercflags=''
+assertions=''
+warncflags=''
+optcflags=''
+cflags=''
+
+
+## =====================================================
+## Checks for programs
+## =====================================================
+
+AC_PROG_CXX
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_AWK
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+AM_PROG_CC_C_O
+AC_LIBTOOL_WIN32_DLL
+AM_PROG_LIBTOOL
+
+
+## =====================================================
+## Get system configuration name
+## =====================================================
+
+# i.e win32, cygwin*, mingw* ...
+
+OS_ENVIRONMENT=$host_os
+MSKL_AC_DEFINE_HOST
+
+
+##  ====================================================
+## Library versioning
+## =====================================================
+
+AC_MSG_CHECKING(for 'myskl' version)
+
+SKL_MAJOR_VERSION=skl_major_version
+SKL_MINOR_VERSION=skl_minor_version
+SKL_MICRO_VERSION=skl_micro_version
+SKL_INTERFACE_AGE=skl_interface_age
+SKL_BINARY_AGE=skl_binary_age
+SKL_VERSION=skl_version
+
+AC_MSG_RESULT( [skl_version] )
+
+
+## =====================================================
+## Libtool versioning: depends on library versioning
+## =====================================================
+
+LT_RELEASE=$SKL_MAJOR_VERSION.$SKL_MINOR_VERSION
+
+LT_CURRENT=`expr $SKL_MINOR_VERSION + \
+  $SKL_MICRO_VERSION - $SKL_INTERFACE_AGE`
+
+LT_REVISION=$SKL_INTERFACE_AGE
+LT_AGE=`expr $SKL_BINARY_AGE - $SKL_INTERFACE_AGE`
+
+
+## =====================================================
+## Arguments parsing
+## =====================================================
+
+AC_ARG_WITH(
+  debug,
+  [AC_HELP_STRING(
+     [--with-debug],
+     [compile with debugging [default=no]])],
+  [ test "x${withval}" = "xyes" &&
+    debug="${withval}" ]
+)
+
+AC_ARG_ENABLE(
+  internal-debugging,
+  [AC_HELP_STRING(
+     [--enable-internal-debugging],
+     [enable internal debugging by using Fred Fish debugging library [default=no]])],
+  [internaldebug=yes],
+  [AC_DEFINE(DBUG_OFF, [], [Don't use Fred Fish debugging library]) ]
+)
+
+AM_CONDITIONAL(INTERNAL_DEBUGGING_ENABLED, test "x$internaldebug" = "xyes" )
+
+AC_ARG_ENABLE(
+  profile,
+  [ --enable-profile=ARG enable support for profiling (default=no) ],
+  [enable_profile=$enableval],
+  [enable_profile=no]
+)
+
+AC_ARG_ENABLE(
+  warnings,
+  [AC_HELP_STRING(
+     [--disable-warnings],
+     [disable warnings display [default=no]])],
+  [AC_DEFINE(NWARNING, [], [Don't display warnings]) ]
+)
+
+AC_ARG_WITH(
+  cc,
+  [AC_HELP_STRING(
+     [--with-cc=CC],
+     [use CC instead of gcc])],
+  CC="$withval"
+)
+
+AC_ARG_WITH(
+  cflags,
+  [AC_HELP_STRING(
+     [--with-cflags=FLAGS],
+     [additional flags])],
+  cflags="$withval"
+)
+
+AC_ARG_WITH(
+  libgc,
+  [AC_HELP_STRING(
+     [--with-libgc=yes|no],
+     [use libgc as allocator])],
+  uselibgc="$withval"
+)
+
+AC_ARG_ENABLE(
+  thread-safety,
+  [AC_HELP_STRING(
+     [--enable-thread-safety],
+     [make library thread-safe [default=no]])],
+  [threadsafe=yes],
+  [threadsafe=no]
+)
+
+AC_ARG_ENABLE(
+  thread-safety-full,
+  [AC_HELP_STRING(
+     [--enable-thread-safety-full],
+     [make library fully thread-safe [default=no]])],
+  [threadsafefull=yes],
+  [threadsafefull=no]
+)
+
+
+## =====================================================
+##  Check for threads and libgc
+## =====================================================
+
+havethreads='no'
+
+if test "x$threadsafe" = "xyes" -o \
+  "x$threadsafefull" = "xyes"
+then
+  havethreads="yes"
+  MSKL_SET_THREAD_MODEL
+fi
+
+# this 2 macros need to be on the top level of the
+# configure script, not in some conditional branch
+
+AM_CONDITIONAL(HAVE_THREADS, test "x$havethreads" = "xyes" )
+AM_CONDITIONAL(THREAD_FULL_MODE, test "x$threadsafefull" = "xyes" )
+
+if test "x$uselibgc" = "xyes"; then
+  MYSKL_CHECK_LIBGC
+fi
+
+
+## =====================================================
+## Make each var. a makefile variable
+## =====================================================
+
+AC_SUBST(SKL_MAJOR_VERSION)
+AC_SUBST(SKL_MINOR_VERSION)
+AC_SUBST(SKL_MICRO_VERSION)
+AC_SUBST(SKL_INTERFACE_AGE)
+AC_SUBST(SKL_BINARY_AGE)
+AC_SUBST(SKL_VERSION)
+
+AC_SUBST(LT_RELEASE)
+AC_SUBST(LT_CURRENT)
+AC_SUBST(LT_REVISION)
+AC_SUBST(LT_AGE)
+
+AC_SUBST(THREADLIBS)
+AC_SUBST(INCLUDES)
+AC_SUBST(GCLIBS)
+
+
+## =====================================================
+## Checks for this file's existence
+## =====================================================
+
+AC_CONFIG_SRCDIR([config.h.in])
+
+
+## =====================================================
+## Header file that the script `configure` will create
+## =====================================================
+
+AC_CONFIG_HEADER([config.h])
+
+
+## =====================================================
+## Define preprocessor macros (with shell expansion)
+## =====================================================
+
+AC_DEFINE_UNQUOTED(SKL_MAJOR_VERSION,
+$SKL_MAJOR_VERSION, [Define to the SKL_MAJOR_VERSION]
+)
+AC_DEFINE_UNQUOTED(SKL_MINOR_VERSION,
+$SKL_MINOR_VERSION, [Define to the SKL_MINOR_VERSION]
+)
+AC_DEFINE_UNQUOTED(SKL_MICRO_VERSION,
+$SKL_MICRO_VERSION, [Define to the SKL_MICRO_VERSION]
+)
+AC_DEFINE_UNQUOTED(SKL_INTERFACE_AGE,
+$SKL_INTERFACE_AGE, [Define to the SKL_INTERFACE_AGE]
+)
+AC_DEFINE_UNQUOTED(SKL_BINARY_AGE,
+$SKL_BINARY_AGE, [Define to the SKL_BINARY_AGE]
+)
+AC_DEFINE_UNQUOTED(OS_ENVIRONMENT,
+$OS_ENVIRONMENT, [Define to the OS_ENVIRONMENT]
+)
+AC_DEFINE_UNQUOTED(SKL_VERSION,
+"$SKL_VERSION", [Define to the SKL_VERSION]
+)
+
+
+## =====================================================
+## Checks for header files
+## =====================================================
+
+AC_HEADER_STDC
+AC_CHECK_HEADERS([malloc.h stddef.h stdlib.h string.h \
+strings.h unistd.h])
+
+
+## =====================================================
+## Checks for typedefs, structures, and compiler
+## characteristics.
+## =====================================================
+
+AC_HEADER_STDBOOL
+AC_C_CONST
+AC_TYPE_SIZE_T
+AC_C_VOLATILE
+
+
+## =====================================================
+## Checks for types and library functions
+## =====================================================
+
+AC_CHECK_SIZEOF([unsigned short])
+AC_CHECK_SIZEOF([unsigned long])
+AC_CHECK_SIZEOF([unsigned int])
+AC_CHECK_SIZEOF([signed short])
+AC_CHECK_SIZEOF([signed int])
+AC_CHECK_SIZEOF([long long])
+AC_CHECK_SIZEOF([long])
+AC_CHECK_SIZEOF([char])
+AC_CHECK_SIZEOF([int])
+
+AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([memcpy])
+AC_CHECK_FUNCS([bcopy])
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_FUNC_VPRINTF
+AC_CHECK_FUNCS([snprintf])
+AC_CHECK_FUNCS([perror])
+
+
+## =====================================================
+## If CFLAGS was not given to 'configure' select a
+## reasonable default value
+## =====================================================
+
+if test "x$GCC" = "xyes"; then
+  optcflags="-O3"
+  debugcflags="-g -O"
+  othercflags="-pipe"
+  warncflags="-Wall"
+
+  case "$host_os" in
+    *linux* | *cygwin* | *mingw* )
+      warncflags="-Wwrite-strings   \
+      -Wpointer-arith -Wcast-align  \
+      -Wmissing-prototypes -Wshadow \
+      -Wnested-externs -Wall        \
+      -Waggregate-return            \
+      -Wextra"
+      ;;
+  esac
+else
+  optcflags="-O"
+  debugcflags="-g"
+  othercflags=""
+  warncflags=""
+fi
+
+if test $cflagsset = no
+then
+  CFLAGS="$optcflags $othercflags"
+  CFLAGS="$CFLAGS $warncflags"
+
+  ## default cflags type
+  cflagstype="default"
+
+  case "$host_os" in
+    *cygwin* | *mingw* )
+      ## define _WIN32 macro
+      CFLAGS="$CFLAGS -mwin32"
+      ;;
+  esac
+
+  if test -n "$debug"; then
+    cflagstype="$cflagstype+debug"
+    CFLAGS="$CFLAGS $debugcflags"
+  fi
+
+  if test "x$enable_profile" = "xyes"; then
+    cflagstype="$cflagstype+profile"
+    CFLAGS="$CFLAGS -pg"
+  fi
+
+  if test -n "$cflags"; then
+    cflagstype="$cflagstype+custom"
+    CFLAGS="$CFLAGS $cflags"
+  fi
+else cflagstype="envvar CFLAGS"
+fi
+
+MYSKL_DLL_IMPORT="" && case "$host_os" in
+  *cygwin* | *mingw* )
+    if test "x$enable_shared" = "xyes"; then
+      MYSKL_DLL_IMPORT=-DMYSKL_DLL_IMPORT
+    fi
+    ;;
+  esac
+
+AC_SUBST(MYSKL_DLL_IMPORT)
+
+
+## =====================================================
+## Create the makefiles
+## =====================================================
+
+# run configure scripts for other packages in subdirs
+# AC_CONFIG_SUBDIRS(lib/gc/)
+
+AC_OUTPUT([
+  libmyskl.pc
+  Makefile
+  src/Makefile
+  include/Makefile
+  test/Makefile])
+
+
+## =====================================================
+## Print a short summary
+## =====================================================
+
+echo -e "
+$me: summary
+==================
+
+Installation prefix:    $prefix
+Library Version:        $SKL_VERSION
+Libtool version:
+   * Release:           $LT_RELEASE
+   * Current:           $LT_CURRENT
+   * Revision:          $LT_REVISION
+   * Age:               $LT_AGE
+Target:                 $host
+Compiler:               $CC
+Compiler flags type:    $cflagstype
+Thread-safe:            $havethreads
+Compiler flags:
+`echo $CFLAGS | fmt -w 50 | sed 's,^,   ,'`
+Done!
+"

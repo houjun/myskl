@@ -1,0 +1,185 @@
+
+==========================================================
+      A couple of tips about library's configuration
+==========================================================
+
+===============
+Error handling
+===============
+
+Each public function has a sort of barrier checking that's
+to say a set of checks to prevent inconsistences, that may
+bring/lead to unsafe operations. If this barrier is passed
+we're reasonable sure that operations will be performed on
+safe arguments. Actually, this way of proceeding is pretty
+simple but efficacious ('keep it simple' philosophy).
+
+This library provides 2 basic methods for handling errors
+when some barrier check is not passed:
+
+1- the first one uses an assertion-based layout: when a
+   certain condition is not satisfied -- i.e a function
+   requires to operate on an undefined list -- then the
+   failure of the condition is immediately fatal to the
+   main program.
+
+2- the second one uses a 'warning-based' layout: when a
+   certain condition isn't satisfied, a warning message
+   is printed to <stderr> and a return, from func where
+   error occured, is done. It is also possible to avoid
+   displaying warning errors by:
+
+   ./configure --disable-warnings
+
+Internally, the library recognizes two main categories
+of errors:
+
+   *) memory allocation errors
+   *) data errors (all other errors)
+
+For each type of error is possible to "declare" how it
+should be handled - using warnings or assertions?!
+By default:
+
+   /* print a warning on data error */
+   # define CHECK_DATA_WARN_ON_ERROR
+
+   /* exit on memory eror */
+   # define CHECK_MEMO_EXIT_ON_ERROR
+
+'include/private/skl_defs.h' is the file where these
+macros can be found and modified.
+
+
+==============
+Thread-safety
+==============
+
+Basically, this library handles concurrent operations
+at two levels, both selectable by using the 'configure'
+script (note that these levels are mutually exclusive)
+
+The first level (basic):
+
+   --enable-thread-safety
+
+may be used when you are requested to run concurrent
+operations on not shared objects. For example:
+
+   MySKLinsertAD( l1, ... );
+   MySKLinsertND( l2, ... );
+
+The second level (full):
+
+   --enable-thread-safety-full
+
+is to be used when concurrent operations on the same
+objects may occur. For example:
+
+   MySKLinsertAD( l, ... );
+   MySKLinsertND( l, ... );
+
+As far as the library performances, doing a comparison
+with a no thread-safe instance of the library, we can
+state that, while the first level of thread-safety has
+almost a negligible effect on the library performances,
+the second one affects the execution time in a more
+noticeable way. Anyway, if parallel operations are not
+required, a 'no thread-safe' compilation is preferable.
+
+
+=======================
+Node's level generator
+=======================
+
+Skiplists are based on a node's level distribution as
+balanced as possible. This library tries to achieve it
+in two ways: using a pseudo-random number generator or
+an alternative (not pseudo-random) implementation. The
+second one seems to be a little bit faster, but is not
+chosen as default ('include/private/skl_defs.h')
+
+
+===============
+Debug handling
+===============
+
+This library uses the Fred Fish's debug library. That one
+helps tracing and profiling internal library's operations
+<MySKLverboseEnable()> function.
+For stopping the verbosity introduced by the dbug library,
+it is sufficient to call the func <MySKLverboseDisable()>.
+Finally, the way to disable the debug system at all is to
+decomment the line below in 'include/private/skl_defs.h':
+
+   # define DBUG_OFF
+
+Note that this macro also disable the two functions that
+have been above-mentioned.
+
+
+===================
+Double linked list
+===================
+
+It is possible to enable the support for double linked
+list. It is better not to do that if not really needed,
+since the amount of memory being used is greater - just
+an obvious thing - and also a reduction in performance
+occurs. If support is needed, it's sufficient to use the
+macro below in 'include/private/skl_defs.h':
+
+   # define MYSKL_DOUBLE_LL_TYPE
+
+Enabling double linked list also enables the function
+MySKLgetPrevNode()
+
+
+
+==========================================================
+                     How to install
+==========================================================
+
+======================
+QUICK INSTALL -- LINUX
+======================
+
+If you are using sources from the project's subversion
+repository, run 'make -f Makefile.cvs' to generate all
+the required configuration scripts. Otherwise, you can
+skip this step.
+
+Then the fastest and easiest way to install this library
+is the familar:
+
+$ ./configure
+$ make
+$ make install
+
+For further informations about installing the library,
+see the 'INSTALL' file and/or type:
+
+$ ./configure --help
+
+The installation will create some executable files in
+the directory './test'. The file 'mysklthreadtest' is
+created only if the lib has been compiled with a full
+thread support (--enable-thread-safety-full).
+
+
+=======================
+QUICK INSTALL - WINDOWS
+=======================
+
+Using Cygwin or MinGW is possible to compile an instance
+of this library, following the same steps as those above
+for Linux.
+
+
+
+==========================================================
+                     How to use
+==========================================================
+
+Take a look at the main header file <include/myskl.h> and
+at the files in the </test> directory.

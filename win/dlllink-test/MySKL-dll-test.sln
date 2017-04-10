@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Explicit-linking", "Explicit-linking\Explicit-linking.vcxproj", "{1D8C204B-16C8-4366-AF6F-68C6684B54A7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Implicit-linking", "Implicit-linking\Implicit-linking.vcxproj", "{621FC9CD-4F75-4DF9-AB78-020CDD88F845}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Delay-loaded", "Delay-loaded\Delay-loaded.vcxproj", "{8054ED62-57CA-4B30-A2D0-0AD81B6A4627}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1D8C204B-16C8-4366-AF6F-68C6684B54A7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1D8C204B-16C8-4366-AF6F-68C6684B54A7}.Debug|Win32.Build.0 = Debug|Win32
+		{1D8C204B-16C8-4366-AF6F-68C6684B54A7}.Release|Win32.ActiveCfg = Release|Win32
+		{1D8C204B-16C8-4366-AF6F-68C6684B54A7}.Release|Win32.Build.0 = Release|Win32
+		{621FC9CD-4F75-4DF9-AB78-020CDD88F845}.Debug|Win32.ActiveCfg = Debug|Win32
+		{621FC9CD-4F75-4DF9-AB78-020CDD88F845}.Debug|Win32.Build.0 = Debug|Win32
+		{621FC9CD-4F75-4DF9-AB78-020CDD88F845}.Release|Win32.ActiveCfg = Release|Win32
+		{621FC9CD-4F75-4DF9-AB78-020CDD88F845}.Release|Win32.Build.0 = Release|Win32
+		{8054ED62-57CA-4B30-A2D0-0AD81B6A4627}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8054ED62-57CA-4B30-A2D0-0AD81B6A4627}.Debug|Win32.Build.0 = Debug|Win32
+		{8054ED62-57CA-4B30-A2D0-0AD81B6A4627}.Release|Win32.ActiveCfg = Release|Win32
+		{8054ED62-57CA-4B30-A2D0-0AD81B6A4627}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

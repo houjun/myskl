@@ -1,0 +1,138 @@
+
+Wed Mar  9 19:37:17 CET 2011 Andrea Ghersi <ghangenit@users.sourceforge.net>
+version 0.2.1
+
+        * Added support for MinGW in order to compile the library
+          to native windows code (refactored 'configure.in' to
+          reach this goal)
+        * Added a Visual Studio 2010 solution to test implicit,
+          explicit and delay-loaded linking on Windows
+        * Fixed some incongruences in 'configure.in' when using
+          Sun C compiler with thread support enabled
+        * Fixed a sneaky bug that could cause heap corruption
+          under MinGW and Visual Studio environment
+        * Added 2 functions:
+               MySKLverboseSuspend()
+               MySKLverboseResume()
+        * Added 'libmyskl.pc.in' for pkg-config
+        * A few other minor changes
+
+
+Tue Oct  5 18:54:58 CEST 2010 Andrea Ghersi <ghangenit@users.sourceforge.net>
+version 0.2.0
+
+        * Made the library thread-safe and reentrant. Code
+          has been tested with Valgrind (tool Helgrind) and
+          seems to work properly. Unfortunately, the debug
+          with threads is not so much easy
+        * Added basic threads support to the Fred Fish's DBUG
+          library
+        * Data are no longer contained (as pointers) within
+          list nodes and are no more explicitly managed by
+          the library. This reduces the data overhead and
+          consequently increases the performance
+        * Added benchmark file '/test/bench.c' and compared
+          the results with a good red-black tree implementation
+          (see MySKL website for further details)
+        * Added the possibility to link this library against
+          libgc (a widely used  garbage collector for C/C++).
+        * Reimplemented the tests for automatically verifying
+          the library's correctness
+        * Added an alternative implementation (not pseudo-random)
+          of the node's level generator
+        * Functions:
+               MySKLmarkDataAsShared()
+               MySKLdeallocData()
+               MySKLallocData()
+               MySKLgetItem()
+               MySKLgetKey()
+          removed.
+        * Functions:
+               MySKLaddtoListsContainer()
+               MySKLupdate()
+               MySKLupdateALL()
+               MySKLintersect()
+               MySKLsearchALL()
+               MySKLcopy()
+               MySKLgetEntry()
+          added.
+        * Functions:
+              MySKLverboseDisable()
+              MySKLverboseEnable()
+          now return a boolean value.
+        * Added template for netbeans and made code compilable
+          with sun Studio (12.2)
+        * Added various scripts useful to test the library in
+          different ways
+        * Changed 'configure.in' to give it the ability to create
+          DLL(s) on windows (by using Cygwin)
+        * Two new enumeration values:
+          MYSKL_NODE_NOT_DELETED (substitutes MYSKL_DATA_SHARED)
+          MYSKL_RANDGEN_ERROR
+        * Replaced all C++ style comments with C style
+        * A lot of other changes
+
+
+Tue Mar 25 19:44:49 CET 2008 Andrea Ghersi <ghangenit@users.sourceforge.net>
+version 0.1.0
+
+        * Added 6 new functions:
+          <src/skl_misc.c>
+               MySKLCustomVerboseEnable()
+               MySKLgetTail()
+               MySKLgetHead()
+          <src/skl_iter.c>
+               MySKLdestroyIterator()
+               MySKLresetIterator()
+               MySKLgetPrevNode()
+        * Fixed a possible inconsistence in the internal PRNG
+          (Pseudorandom Number Generator) and tested changes.
+          Completely reorganization of the algorithm source
+          code.
+          <src/private/skl_priv.c>
+        * Functions:
+               MySKLinsertAD|ND
+               MySKLdeleteAF|NF
+               MySKLjoinAD|ND
+               MySKLsearch
+               MySKLinit
+          may return a new enumeration type: MSKL_ERROR
+        * Significant reimplmentation of the internal tracing
+          system. Now it uses the Fred Fish's debugging lib
+          (DBUG) - extended a little to fulfill this library
+          needs
+          <src/extra/dbug.c - src/private/extra/dbug.h>
+        * Improved the internal handling of the reference
+          counter used to manage shared data among lists
+        * Added support for dobule linked skiplist by setting
+          the macro <MYSKL_DOUBLE_LINKED> in 'skl_conf.h'
+        * Partially reimplementation of iterator functions -
+          Some bugs fixed.
+          <skl_iter.c>
+        * Rearranged MySKLallocData() <src/skl_mman.c>
+        * Directories and sources reorganization: updated
+          autotools files and solution for Visual Studio
+          Added template for the ide kdevelop
+        * All integer variables >= 0 are now declared as
+          unsigned int
+        * Updated and improved MySKLdrawList().
+          <src/skl_draw.c>
+        * Reimplemented errors management ( 'warning with
+          return' or 'assertions' methods ). This should
+          have significantly increased the stability of
+          the library in presence of bad function args
+        * Changed the k value in MySKLisEmpty ( k>=0 )
+        * Updated man and html documentations
+        * Functions:
+               MySKLinitGarbageCollector()
+               MySKLfreeGarbageCollector()
+          renamed in:
+               MySKLinitListsContainer()
+               MySKLfreeListsContainer()
+          This broke backward compatibility
+        * Code review with Uncrustify ( just *.c files )
+          Header files still remain hand-formatted
+        * Rearranged some functions in test files
+          <test/func.c - test/test.c>
+        * Tested on Cygwin, Windows XP and Linux
+        * Many other minor changes I don't remember

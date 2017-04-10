@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libmyskl
+Description: A library that implements a skip list data structure
+Version: @SKL_VERSION@
+Requires:
+Conflicts:
+Libs: -L${libdir} -lmyskl
+Cflags: -I${includedir}

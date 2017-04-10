@@ -1,0 +1,6 @@
+
+
+<libmyskl-2.dll> was compiled using MinGW:
+
+./configure --enable-thread-safety-full --enable-internal-debugging
+make

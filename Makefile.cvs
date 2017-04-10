@@ -1,0 +1,43 @@
+
+#
+# REMEMBER: use 8 TAB width for directives; SPACES for comments
+#
+
+# enable/disable using white color for displayed text
+
+CL1_S=\033[1m
+CL1_E=\033[0m
+
+default: all
+
+all:
+        # Decomment to create the dir 'config' that will contain the files
+        # we are going to auto generate: 'config.guess', 'config.sub', ...
+        # To achieve this behavior, there's also need to add the following
+        # macro, 'AC_CONFIG_AUX_DIR(config)', before AM_INIT_AUTOMAKE(...)
+        # in 'configure.in'
+        # mkdir -p config
+
+        # makes aclocal.m4 from acinclude.m4 (if exists) and other files
+	aclocal -I m4
+
+        # creates ltmain.sh
+        # copy files rather than symlinking them (-c) and replace existent
+        # files (-f)
+	libtoolize --automake -c -f
+
+        # scans configure.in and creates config.h.in
+	autoheader
+
+        # creates Makefile.in from Makefile.am
+        # add missing standard files to package (-a) and copy missing files
+        # rather than symlinking them (-c)
+	automake --add-missing -a -c
+
+        # creates configure from configure.in
+	autoconf
+
+	@(\
+	    echo -e "\nOperations completed successfully!"; \
+	    echo -e "Now run $(CL1_S)./configure$(CL1_E), see $(CL1_S)./configure --help$(CL1_E) for more information\n" \
+	)

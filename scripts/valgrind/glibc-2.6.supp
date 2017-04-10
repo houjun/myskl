@@ -1,0 +1,46 @@
+
+##----------------------------------------------------------------------##
+
+# Errors to suppress by default with glibc 2.6.x
+
+# Format of this file is:
+# {
+#     name_of_suppression
+#     tool_name:supp_kind
+#     (optional extra info for some suppression types)
+#     caller0 name, or /name/of/so/file.so
+#     caller1 name, or ditto
+#     (optionally: caller2 name)
+#     (optionally: caller3 name)
+#  }
+#
+# For Memcheck, the supp_kinds are:
+#
+#     Param Value1 Value2 Value4 Value8 Value16 Jump
+#     Free Addr1 Addr2 Addr4 Addr8 Addr16
+#     Cond (previously known as Value0)
+#
+# and the optional extra info is:
+#     if Param: name of system call param
+
+{
+   warn1
+   Memcheck:Cond
+   fun:pthread_cond_broadcast@@GLIBC_2.3.2
+   fun:inserttest
+   fun:worker
+   fun:start_thread
+   fun:clone
+}
+
+{
+   warn2
+   Memcheck:Cond
+   fun:pthread_cond_broadcast@@GLIBC_2.3.2
+}
+
+{
+   warn3
+   Memcheck:Cond
+   fun:pthread_cond_broadcast@@GLIBC_2.3.2
+}
